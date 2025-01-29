@@ -56,5 +56,6 @@ func ServerInitialization(k *config.Config) {
 	router.HandleFunc("/products/{id}", productHandler.UpdateProduct).Methods("PUT")
 	router.HandleFunc("/products/{id}", productHandler.DeleteProductById).Methods("DELETE")
 	fmt.Println("Server is running on port", k.Port.Port)
-	http.ListenAndServe(":8080", router)
+	// http.ListenAndServe(":8080", router)
+	log.Fatal(http.ListenAndServe(":8080", router))
 }

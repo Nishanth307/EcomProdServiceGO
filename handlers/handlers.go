@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -41,7 +42,11 @@ func (h *ProductHandler) GetProductById(w http.ResponseWriter, request *http.Req
 		http.Error(w, err.Error(), http.StatusInternalServerError) // return the error if there is any
 		return
 	}
-	json.NewEncoder(w).Encode(product) // encode the product into json and return it
+	// json.NewEncoder(w).Encode(product) // encode the product into json and return it
+	if err := json.NewEncoder(w).Encode(product); err != nil {
+		http.Error(w, "Failed to encode product to JSON", http.StatusInternalServerError)
+		return
+	  }
 }
 
 func (h *ProductHandler) GetAllProducts(w http.ResponseWriter, request *http.Request) {
@@ -69,7 +74,10 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("Product created successfully"))
+	// w.Write([]byte("Product created successfully"))
+	if _, err := w.Write([]byte("Product created successfully")); err != nil {
+		log.Println("Failed to write response:", err)
+	  }
 }
 
 func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, request *http.Request) {
@@ -89,7 +97,10 @@ func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, request *http.Requ
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Product updated successfully"))
+	// w.Write([]byte("Product updated successfully"))
+	if _, err := w.Write([]byte("Product updated successfully")); err != nil {
+		log.Println("Failed to write response:", err)
+	  }
 }
 
 func (h *ProductHandler) DeleteProductById(w http.ResponseWriter, request *http.Request) {
@@ -104,5 +115,8 @@ func (h *ProductHandler) DeleteProductById(w http.ResponseWriter, request *http.
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Product deleted successfully"))
+	// w.Write([]byte("Product deleted successfully"))
+	if _, err := w.Write([]byte("Product deleted successfully")); err != nil {
+		log.Println("Failed to write response:", err)
+	  }
 }
