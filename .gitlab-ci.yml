@@ -1,0 +1,42 @@
+stages:
+  - test
+  - lint
+  - build
+  # - deploy
+
+variables:
+  GO_VERSION: "1.23.3"
+
+format:
+  stage: test
+  image: golang:${GO_VERSION}
+  script:
+    - go fmt $(go list ./... | grep -v /vendor/)
+    - go vet $(go list ./... | grep -v /vendor/)
+    - go test -race $(go list ./... | grep -v /vendor/)
+
+lint:
+  stage: lint
+  image: golangci/golangci-lint:latest
+  script:
+    - golangci-lint run ./...
+
+compile:
+  stage: build
+  image: golang:${GO_VERSION}
+  before_script:
+    - echo "Fetching project dependencies..."
+    - go mod tidy
+  script:
+    - go build -o bin/app ./cmd/products
+  artifacts:
+    paths:
+      - app  # Store the built binary as an artifact 
+  only:
+    - main go build -o bin/app ./cmd/products
+# go run cmd/productsapi/main.go
+# deploy:
+#   stage: deploy
+#   script: echo "Define your deployment script!"
+#   environment: production
+
