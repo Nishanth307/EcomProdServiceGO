@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-deployment
+spec:
+  replicas: 2 # Two replicas to distribute the load
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      containers:
+      - name: app
+        image: app:v4
+        imagePullPolicy: Never # Use local image; requires image to be pre-built
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MONGODB_URI
+          value: "mongodb://mongo:27017"
+        - name: POSTGRES_URI
+          value: "postgresql://postgres:1234@postgres:5432/postgres?sslmode=disable"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-service
+spec:
+  selector:
+    app: app
+  ports:
+    - protocol: TCP
+      port: 8080 # Expose this port externally
+      targetPort: 8080 # Forward traffic to this container port
+  type: LoadBalancer # Balances load across replicas and provides external access
