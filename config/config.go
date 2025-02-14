@@ -4,20 +4,23 @@ import ()
 
 var DefaultConfig = []byte(`
 bool:
-        enabled: true
+    enabled: true
 mongo:
-      uri: "mongodb://localhost:27017"
+    uri: "mongodb://localhost:27017"
 postgres:
-      uri: "postgresql://postgres:1234@localhost:5432/postgres?sslmode=disable"
+    uri: "postgresql://postgres:1234@localhost:5432/postgres?sslmode=disable"
+clickhouse:
+    uri: "localhost:9000"
 port:
-      port: 8080
+    port: 8080
 `)
 
 type Config struct {
-	Mongo    Mongo    `koanf:"mongo"`
-	Postgres Postgres `koanf:"postgres"`
-	Port     Port     `koanf:"port"`
-	Bool     Bool     `koanf:"bool"`
+	Mongo      Mongo      `koanf:"mongo"`
+	Postgres   Postgres   `koanf:"postgres"`
+	Port       Port       `koanf:"port"`
+	Bool       Bool       `koanf:"bool"`
+	ClickHouse ClickHouse `koanf:"clickhouse"`
 }
 
 type Port struct {
@@ -34,4 +37,7 @@ type Postgres struct {
 
 type Bool struct {
 	Enabled bool `koanf:"enabled"`
+}
+type ClickHouse struct {
+	URI string `koanf:"uri"`
 }

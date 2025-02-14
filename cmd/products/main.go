@@ -10,6 +10,7 @@ import (
 	config "products/config"
 	handlers "products/handlers"
 	mongorepo "products/repositories/mongodb"
+	clickhouse "products/repositories/clickhouse"
 	postgresrepo "products/repositories/postgresdb"
 	services "products/services"
 
@@ -28,23 +29,33 @@ func main() {
 }
 
 func ServerInitialization(k *config.Config) {
+
+	//ClickHouse Connect
+	clickhouseRepo, err := clickhouse.Connect(k.ClickHouse.URI)
+	if err != nil {
+		log.Fatalf("Failed to connect to ClickHouse: %v", err)
+	}
+	defer clickhouseRepo.Conn.Close()
+	
+
+
 	// Connecting to DB
 	var productRepo services.ProductRepository
 	if k.Bool.Enabled {
-		mongo_client, err := mongorepo.Connect(k.Mongo.URI) // pass the URI from the config file
+		mongo_client, err := mongorepo.Connect(k.Mongo.URI) 
 		if err != nil {
 			log.Fatalf("Failed to connect to db:%v", err)
-
 		}
-		productRepo = mongorepo.NewProductRepository(mongo_client) // redeclared here
-	} else {
-		// Connect to Postgres
+		productRepo = mongorepo.NewProductRepository(mongo_client) 
+	} else{
+		
 		postgresCli, err := postgresrepo.Connect(k.Postgres.URI)
 		if err != nil {
 			log.Fatalf("PostgreSQL connection error: %v", err)
 		}
 		productRepo = postgresrepo.NewPostgresDB(postgresCli)
 	}
+	// productRepo = clickhouse.Connect()
 
 	productService := services.NewService(productRepo)
 	productHandler := handlers.NewProductHandler(productService)
